@@ -51,8 +51,9 @@ init(autoreset = True)
 def read_csv_file(csv_directory, file_name):
     check_file_present(csv_directory, file_name)
     csv_file = os.path.join(csv_directory, file_name)
-    #csv_data = pd.read_csv(csv_file)
-    #return csv_data
+    if os.path.isfile(os.path.join(csv_directory, file_name)):
+        csv_data = pd.read_csv(csv_file)
+        return csv_data
 
 def check_file_present(csv_directory, file_name):
     if not os.path.isfile(os.path.join(csv_directory, file_name)):
