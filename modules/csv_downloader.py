@@ -69,7 +69,15 @@ def check_file_present(csv_directory, file_name):
 
 
 def download_csv_file(download_url, file_path):
-    urllib.request.urlretrieve(download_url, file_path, reporthook = download_progress)
+    try:
+        print('Downloading: '+os.path.split(file_path)[-1])
+        urllib.request.urlretrieve(download_url, file_path, reporthook = download_progress)
+    except Exception as e:
+        print(Fore.RED+'\nDownloading failed')
+        delete_failed_download(file_path)
+        print(e)
+
+
     
 def download_progress(count, block_size, total_size):
     global start_time
@@ -80,10 +88,14 @@ def download_progress(count, block_size, total_size):
     progress_size = int(count * block_size)
     speed = int(progress_size / ((1024 * duration) + 1e-5))
     percent = int(count * block_size * 100 / (total_size + 1e-5))
-    sys.stdout.write(Fore.BLUE+"\r%d%%, %d MB, %d KB/s, %d seconds passed" %
+    sys.stdout.write(Fore.BLUE+"\r\r%d%%, %d MB, %d KB/s, %d seconds passed" %
                      (percent, progress_size / (1024 * 1024), speed, duration)+"\r\r")
     sys.stdout.flush()
     
+
+def delete_failed_download(file_path):
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 
 
