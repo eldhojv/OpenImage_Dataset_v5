@@ -5,63 +5,37 @@ import pandas as pd
 import urllib.request
 from colorama import init, Fore, Back, Style
 
-OPEN_IMAGE_DATASET_URL = 'https://storage.googleapis.com/openimages/2018_04/test/'
-
-########################################################################################################
-#contains information about the bounding boxes
-
-BOXES_TRAIN = 'https://storage.googleapis.com/openimages/2018_04/train/train-annotations-bbox.csv'
-BOXES_VALIDATION = 'https://storage.googleapis.com/openimages/v5/validation-annotations-bbox.csv'
-BOXES_TEST = 'https://storage.googleapis.com/openimages/v5/test-annotations-bbox.csv'
-
-########################################################################################################
-#contains segmentation datas
-
-SEGMENTATION_TRAIN = 'https://storage.googleapis.com/openimages/v5/train-masks/train-masks-0.zip'
-SEGMENTATION_TRAIN_MASK = 'https://storage.googleapis.com/openimages/v5/train-annotations-object-segmentation.csv'
-
-SEGMENTATION_VALIDATION = 'https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-0.zip'
-SEGMENTATION_VALIDATION_MASK = 'https://storage.googleapis.com/openimages/v5/validation-annotations-object-segmentation.csv'
-
-SEGMENTATION_TEST = 'https://storage.googleapis.com/openimages/v5/test-masks/test-masks-0.zip'
-SEGMENTATION_TEST_MASK = 'https://storage.googleapis.com/openimages/v5/test-annotations-object-segmentation.csv'
-
-########################################################################################################
-#not needed
-IMAGE_LABELS_TRAIN = 'https://storage.googleapis.com/openimages/v5/train-annotations-human-imagelabels-boxable.csv'
-IMAGE_LABELS_VALIDATION = 'https://storage.googleapis.com/openimages/v5/validation-annotations-human-imagelabels-boxable.csv'
-IMAGE_LABELS_TEST = 'https://storage.googleapis.com/openimages/v5/test-annotations-human-imagelabels-boxable.csv'
-
-########################################################################################################
-#contains url to download the image file
-
-IMAGE_ID_TRAIN = 'https://storage.googleapis.com/openimages/2018_04/train/train-images-boxable-with-rotation.csv'
-IMAGE_ID_VALIDATION = 'https://storage.googleapis.com/openimages/2018_04/validation/validation-images-with-rotation.csv'
-IMAGE_ID_TEST = 'https://storage.googleapis.com/openimages/2018_04/test/test-images-with-rotation.csv'
-
-########################################################################################################
-METADATA_CLASS_NAME = 'https://storage.googleapis.com/openimages/v5/class-descriptions-boxable.csv'
-
-
-csv_directory = os.path.join(os.path.dirname(os.getcwd()),'OpenImageDataset\csv_folder')
-file_name = 'test-images-with-rotation.csv'
+OPEN_IMAGE_DATASET_URL = 'https://storage.googleapis.com/openimages/'
+OID_VERSION_URL = ['2018_04/','v5/']   
 
 init(autoreset = True)
 
-def read_csv_file(csv_directory, file_name):
-    check_file_present(csv_directory, file_name)
+def read_csv_file(csv_directory, file_name, version_url, header_value = None):
+    check_file_present(csv_directory, file_name, version_url)
     csv_file = os.path.join(csv_directory, file_name)
     if os.path.isfile(os.path.join(csv_directory, file_name)):
-        csv_data = pd.read_csv(csv_file)
+        print(Fore.YELLOW+'Please wait while parsing: '+file_name+' '+Fore.RESET)
+        csv_data = pd.read_csv(csv_file, header = header_value)
+        print(Fore.BLUE+'Parsing '+file_name+' completed')
         return csv_data
 
-def check_file_present(csv_directory, file_name):
+def check_file_present(csv_directory, file_name, version_url):
+
+    if file_name == 'train-annotations-bbox.csv':
+        if version_url == 'v4':
+            version_url = OID_VERSION_URL[0]+file_name.split('-')[0]+'/'
+        else:
+            version_url = OID_VERSION_URL[0]
+    else:
+        version_url = OID_VERSION_URL[1]
+    
     if not os.path.isfile(os.path.join(csv_directory, file_name)):
-        print(Fore.RED+ '** File not present **')
+        print(Fore.RED+ '>>File not present: '+Fore.RESET+file_name)
         print('Do you want to download the file '+Fore.BLUE+'[Y/N]')
         user_response = input()
         if user_response.lower() == 'y':
-            download_url = str(OPEN_IMAGE_DATASET_URL+file_name)
+            download_url = str(OPEN_IMAGE_DATASET_URL+version_url+file_name)
+            print(download_url)    # to delete for testing purpose
             file_path = os.path.join(csv_directory, file_name)
             download_csv_file(download_url, file_path)
         else:
@@ -73,10 +47,12 @@ def download_csv_file(download_url, file_path):
     try:
         print('Downloading: '+os.path.split(file_path)[-1])
         urllib.request.urlretrieve(download_url, file_path, reporthook = download_progress)
+        print('\nSuccessfully downloaded file {}'.format(file_path))
     except Exception as e:
         print(Fore.RED+'\nDownloading failed')
         delete_failed_download(file_path)
         print(e)
+        exit(1)
 
 
     
@@ -93,18 +69,9 @@ def download_progress(count, block_size, total_size):
                      (percent, progress_size / (1024 * 1024), speed, duration)+"\r\r")
     sys.stdout.flush()
     
+    
 
 def delete_failed_download(file_path):
     if os.path.exists(file_path):
         os.remove(file_path)
-
-
-
-
-        
-
-
-
-
-read_csv_file(csv_directory, file_name)
 

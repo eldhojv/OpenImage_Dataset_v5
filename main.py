@@ -1,9 +1,11 @@
 #---------------------------------------------------------
 #
 # Author : Eldho
-# Date   : 27/05/2019
+# Contibutors : 
+# Written Date   : 27/05/2019
+# Modified date :
 # Project to download OpenImage Dataset version 5
-# Will include segmentation in future release
+# 
 #---------------------------------------------------------
 
 import os
