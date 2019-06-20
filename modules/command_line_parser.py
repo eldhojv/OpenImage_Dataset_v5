@@ -23,6 +23,8 @@ def parser_arguments():
                         help = "download segmentation files(related to subset)")
     parser.add_argument("--download_limit", required = False, 
                         help = "Specify number of files to download")
+    parser.add_argument("--segmentation_type", required = True, default = 'instance',choices = ['semantic','instance'],
+                        metavar = 'semantic or instance', help = "Specify segmentation type(semantic/instance)")
 
     # ----------- not needed -----------------------                    
     # parser.add_argument("--relationship", required = False, choices = ['true','false'],
