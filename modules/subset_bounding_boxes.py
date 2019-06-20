@@ -34,9 +34,9 @@ def subset_bounding_boxes(args, DEFAULT_DATASET_DIRECTORY):
                 contents = file_object.readlines()
                 subset_classes = [x.strip('\n') for x in contents]
         else:
-            print("This will be implemented later")
-            subset_classes = args.subset
-            print(subset_classes)    #to delete for testing purpose
+            subset_classes = args.subset.split(',')
+            
+        
 
         make_folder_directory(dataset_dir, csv_directory, subset_classes, args) 
 
