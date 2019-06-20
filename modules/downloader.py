@@ -35,13 +35,6 @@ def download_images(dataset_dir, folder, classes, image_list):
     print(Fore.GREEN+"Image downloading completed"+Fore.RESET)
 
 
-def error_log(folder, classes, image):
-    error_msg = "Error - Dataset: "+folder+" || Class: "+classes+" || ImageID: "+image+"\n"
-    with open("error_log.log", "a+") as fileobject:
-        fileobject.write(error_msg)
-
-
-
 def download_image_labels(dataset_dir, folder, classes, label_code, csv_data):
     print(Fore.YELLOW+"Creating Labels for: "+classes+" "+Fore.RESET)
     dataset_dir = os.path.join(dataset_dir, folder, classes)
@@ -66,11 +59,11 @@ def download_image_labels(dataset_dir, folder, classes, label_code, csv_data):
                 each_bbox_data[2] *= image_file.shape[1]
                 each_bbox_data[3] *= image_file.shape[1]
                 #writing to file
-                label_string = str('\n'+str(classes)+
+                label_string = str(str(classes)+
                                 ": XMin = "+str(each_bbox_data[0])+
-                                ", XMax = "+str(each_bbox_data[1])+
-                                ", YMin = "+str(each_bbox_data[2])+
-                                ", YMax = "+str(each_bbox_data[3]))
+                                " || XMax = "+str(each_bbox_data[1])+
+                                " || YMin = "+str(each_bbox_data[2])+
+                                " || YMax = "+str(each_bbox_data[3])+'\n')
                 file_object.write(str(label_string))
             
             file_object.close()
@@ -81,13 +74,13 @@ def download_image_labels(dataset_dir, folder, classes, label_code, csv_data):
     
     print(Fore.BLUE+"Labels creation completed"+Fore.RESET)
     
-def download_segmentation_file(csv_directory, dataset_dir, folder, subset_classes, label_code, csv_data):
+def download_segmentation_file(csv_directory, dataset_dir, folder, subset_classes, label_code, csv_data, segmentation_type):
     if not os.path.exists(os.path.join(dataset_dir.split('/')[0], 'mask_images', folder)):
         os.makedirs(os.path.join(dataset_dir.split('/')[0], 'mask_images', folder))
 
-    download_mask_images(dataset_dir, folder)
-    extract_mask_images(dataset_dir, folder)
-    delete_mask_images_zipfiles(dataset_dir, folder)
+    # download_mask_images(dataset_dir, folder)
+    # extract_mask_images(dataset_dir, folder)
+    # delete_mask_images_zipfiles(dataset_dir, folder)
 
     header_value = None
     version_url = 'v5'
@@ -102,9 +95,15 @@ def download_segmentation_file(csv_directory, dataset_dir, folder, subset_classe
         downloaded_image_files = [images.split('.')[0] for images in os.listdir(class_directory) if images.endswith('.jpg')]
         for each_image_file in downloaded_image_files:
             segmentation_mask_data = csv_data.loc[(csv_data.LabelName == label_code) & (csv_data.ImageID == each_image_file)][['MaskPath','ImageID']].values.tolist()
-            move_mask_images(dataset_dir, folder, classes, segmentation_mask_data)
+            
+            if segmentation_type.lower() == 'instance':    
+                #move_mask_images is for instance segmentation data
+                move_mask_images(dataset_dir, folder, classes, segmentation_mask_data)
+            elif segmentation_type.lower() == 'semantic':    
+                #combine_mask_images is for semantic segmentation data
+                combine_mask_images(dataset_dir, folder, classes, segmentation_mask_data) 
 
-    print(Fore.BLUE+"Moving mask_images and segmentation mapping completed"+Fore.RESET)
+    print(Fore.BLUE+"Copying mask_images and segmentation mapping completed"+Fore.RESET)
 
 
     
@@ -119,7 +118,7 @@ def download_mask_images(dataset_dir, folder):
             file_name = str(folder)+'-masks-'+each_mask_suffix+'.zip'
             if file_name not in zipfile_list:
                 file_path = mask_images_master_directory+'/'+file_name
-                download_url = str(OPEN_IMAGE_DATASET_URL)+str(OID_VERSION_URL[1])+str(folder)+'-masks/'+str(file_name)
+                download_url = str(OPEN_IMAGE_DATASET_URL)+str(OID_VERSION_URL[1])+str(folder)+'-masks\\'+str(file_name)
                 print(Fore.YELLOW+'Downloading {}'.format(file_name))
                 urllib.request.urlretrieve(download_url, file_path, reporthook = download_progress)
                 print(Fore.BLUE+'\nSuccessfully downloaded {}'.format(file_name)+Fore.RESET)
