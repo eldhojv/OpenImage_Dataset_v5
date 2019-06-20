@@ -93,7 +93,7 @@ def subset_bounding_boxes(args, DEFAULT_DATASET_DIRECTORY):
                     header_value = 0
                     version_url = 'v5'
                     csv_data = read_csv_file(csv_directory, csv_file, version_url, header_value)
-                    download_segmentation_file(csv_directory, dataset_dir, each_folder, subset_classes, label_code, csv_data)
+                    download_segmentation_file(csv_directory, dataset_dir, each_folder, subset_classes, label_code, csv_data, args.segmentation_type)
 
             elif args.dataset in folder:
                 each_folder = args.dataset
@@ -101,7 +101,7 @@ def subset_bounding_boxes(args, DEFAULT_DATASET_DIRECTORY):
                 header_value = 0
                 version_url = 'v5'  
                 csv_data = read_csv_file(csv_directory, csv_file, version_url, header_value)
-                download_segmentation_file(csv_directory, dataset_dir, each_folder, subset_classes, label_code, csv_data)
+                download_segmentation_file(csv_directory, dataset_dir, each_folder, subset_classes, label_code, csv_data, args.segmentation_type)
 
             else:
                 print(Fore.RED+"Segmentation ERROR - please check dataset"+Fore.RESET)
