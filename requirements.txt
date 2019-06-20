@@ -1,3 +1,11 @@
-json
 urllib
 colorama 
+cv2
+itertools
+tqdm
+sys
+zipfile
+pandas
+argparse
+shutil
+numpy
